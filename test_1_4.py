@@ -1,36 +1,42 @@
-#child-parent
-namespace={"global":"global"}
+#current:parent
+namespace={"global":""}
 vars_in_ns={}
+
+def create(nm_current,nm_parent):
+    parent = namespace.get(nm_current)
+    if parent !=nm_parent:
+        namespace[nm_current]=nm_parent
+
+def add(nm_current,varname):
+    ns = namespace.get(nm_current)
+    if ns:
+        varrs=vars_in_ns.get(nm_current)
+        if varrs:
+            if varname not in varrs:
+                vars_in_ns[nm_current]=varrs.add(varname)
+def get_nm_for_var(nm,varname):
+    parent=namespace.get(nm)
+    varss= vars_in_ns.get(nm) #проверим в текущем namespace
+    if varss and varname in varss:#нашли возвращаем
+        return nm
+    elif parent=="" and varname not in varss:#если в глобальном простарнстве дальше идти некуда
+        return None
+        #поищем на верхнем уровне
+    elif parent:
+        return get_nm_for_var(parent,varname)
 
 
 
 n=int(input())
-idx_namespace=0
-idx_vars=0
 for _ in range(n):
     s=input()
     s=s.split()
     if s[0]=="create":       
-         parent = namespace.get(s[2])
-         child=namespace.get(s[1])
-         if parent==None or child==None:
-              namespace[s[1]]=s[2]
+        create(s[1],s[2])
     elif s[0]=="add":
-          ns = namespace.get(s[1])
-          v=f"{s[1]}-{s[2]}"
-          if ns:
-            var_=vars_in_ns.get(v)
-            if var_==None:
-                       vars_in_ns[v]=s[2]
+        add(s[1],s[2])
     elif s[0]=="get":
-        if f"{s[1]}-{s[2]}" in vars_in_ns:
-            print(s[1])
-        else : ## если нашли сразу то поищеи есть ли она вообще
-            for k,v in vars_in_ns.items():
-                 if v==s[2]: # где-то есть
-                    print("Необходимо поискать в верхнем пространстве имен")  #тут поискать в верхнем пространстве имен
-            else:# нет вообще в списке
-                print("None")
+        get_nm_for_var(s[1],s[2])
 
                        
                        
